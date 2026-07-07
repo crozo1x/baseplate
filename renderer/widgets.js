@@ -85,7 +85,9 @@ function renderRojoStatus(container) {
       draw(null);
       return;
     }
-    window.api.rojo.getStatus(folder).then(draw);
+    window.api.rojo.getStatus(folder).then((status) => {
+      if (window.BuildCenter.getProjectFolder() === folder) draw(status);
+    });
   }
 
   function onStatus(payload) {
