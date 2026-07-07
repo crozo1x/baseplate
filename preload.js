@@ -14,4 +14,7 @@ contextBridge.exposeInMainWorld('api', {
   project: {
     selectFolder: () => ipcRenderer.invoke('project:selectFolder'),
   },
+  git: {
+    status: (folder) => ipcRenderer.invoke('git:status', folder),
+  },
 });

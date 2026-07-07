@@ -2,7 +2,9 @@ const { app, BrowserWindow, ipcMain, Menu, dialog } = require('electron');
 const path = require('path');
 const os = require('os');
 const pty = require('node-pty');
+const { execFile } = require('child_process');
 const { loadConfig, saveConfig } = require('./lib/config-store');
+const { parseGitStatus } = require('./lib/git-status');
 
 const terminals = new Map(); // id -> pty process
 let mainWindow;
@@ -132,4 +134,18 @@ ipcMain.handle('project:selectFolder', async () => {
     return { canceled: true };
   }
   return { canceled: false, folder: result.filePaths[0] };
+});
+
+ipcMain.handle('git:status', (event, folder) => {
+  return new Promise((resolve) => {
+    execFile('git', ['branch', '--show-current'], { cwd: folder }, (branchErr, branchOut) => {
+      if (branchErr) {
+        resolve({ isRepo: false });
+        return;
+      }
+      execFile('git', ['status', '--short'], { cwd: folder }, (statusErr, statusOut) => {
+        resolve(parseGitStatus(branchOut, statusErr ? '' : statusOut));
+      });
+    });
+  });
 });
