@@ -7,10 +7,21 @@ const { execFile } = require('child_process');
 const { loadConfig, saveConfig } = require('./lib/config-store');
 const { parseGitStatus } = require('./lib/git-status');
 const { findPlaceFile } = require('./lib/find-place-file');
+const { autoUpdater } = require('electron-updater');
+const { attachUpdaterEvents } = require('./lib/updater');
 
 const terminals = new Map(); // id -> pty process
 let mainWindow;
 const configPath = path.join(app.getPath('userData'), 'config.json');
+
+autoUpdater.autoDownload = false;
+
+attachUpdaterEvents(autoUpdater, (state) => {
+  if (mainWindow) mainWindow.webContents.send('update:status', { state });
+  if (state === 'downloaded') {
+    autoUpdater.quitAndInstall();
+  }
+});
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -36,6 +47,12 @@ function createWindow() {
 app.whenReady().then(() => {
   Menu.setApplicationMenu(null);
   createWindow();
+  setTimeout(() => {
+    autoUpdater.checkForUpdates().catch(() => {
+      // No published releases yet, or offline — fail silently, matching the
+      // "no update available" UX rather than surfacing a startup error.
+    });
+  }, 5000);
 });
 
 app.on('window-all-closed', () => {
@@ -165,4 +182,18 @@ ipcMain.handle('roblox:playTest', (event, folder) => {
   }
   shell.openPath(path.join(folder, placeFile));
   return { ok: true };
+});
+
+ipcMain.handle('update:check', () => {
+  return autoUpdater
+    .checkForUpdates()
+    .then(() => ({ ok: true }))
+    .catch((err) => ({ ok: false, error: String(err) }));
+});
+
+ipcMain.handle('update:download', () => {
+  return autoUpdater
+    .downloadUpdate()
+    .then(() => ({ ok: true }))
+    .catch((err) => ({ ok: false, error: String(err) }));
 });

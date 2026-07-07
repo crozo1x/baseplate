@@ -20,4 +20,13 @@ contextBridge.exposeInMainWorld('api', {
   roblox: {
     playTest: (folder) => ipcRenderer.invoke('roblox:playTest', folder),
   },
+  update: {
+    check: () => ipcRenderer.invoke('update:check'),
+    download: () => ipcRenderer.invoke('update:download'),
+    onStatus: (cb) => {
+      const listener = (_event, payload) => cb(payload);
+      ipcRenderer.on('update:status', listener);
+      return () => ipcRenderer.removeListener('update:status', listener);
+    },
+  },
 });

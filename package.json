@@ -1,23 +1,45 @@
 {
   "name": "baseplate",
-  "productName": "BasePlate",
   "version": "0.1.0",
   "description": "BasePlate - Roblox VibeCoding Experience: a local control center for building Roblox games with Claude Code",
+  "author": {
+    "name": "crozo1x",
+    "email": "selfbrandbusiness@gmail.com"
+  },
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
     "rebuild": "electron-rebuild -f -w node-pty",
-    "test": "node --test"
+    "test": "node --test",
+    "dist": "electron-builder --publish never"
+  },
+  "build": {
+    "appId": "com.crozo1x.baseplate",
+    "productName": "BasePlate",
+    "npmRebuild": false,
+    "asarUnpack": [
+      "**/node_modules/node-pty/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "crozo1x",
+      "repo": "claude-build-center"
+    }
   },
   "dependencies": {
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
+    "electron-updater": "^6.8.9",
     "gridstack": "^12.6.0",
     "node-pty": "^1.0.0"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.6.1",
-    "electron": "^31.3.0"
+    "electron": "^31.3.0",
+    "electron-builder": "^26.15.3"
   }
 }

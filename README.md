@@ -102,13 +102,13 @@ claude-build-center/
 
 1. **Roblox skill content** — "New Script" currently just opens a plain Claude Code session; authoring actual Luau/Roblox-specific Claude Code skills for it to invoke is a separate follow-up project.
 2. **Roblox Open Cloud analytics** — the Roblox Analytics widget is a stub; wiring up live player/visit counts requires an API key and its own design pass.
-3. **Auto-update system** — an in-app "update available" → download → restart/relaunch flow for distributing the packaged app, spec'd separately from the GUI work.
-4. **Local agent/process manager** — a side panel for other local AI agent processes (Ollama models, custom Python agent loops, etc.), separate from the terminal grid and widget canvas.
-5. **True split-pane resizing** — current terminal layout is a responsive auto-grid; draggable resize handles between panes would make it feel more like a real tiling terminal.
-6. **Command palette** — `Ctrl+K`-style launcher to spawn a named terminal/agent/widget without touching the mouse.
+3. **Local agent/process manager** — a side panel for other local AI agent processes (Ollama models, custom Python agent loops, etc.), separate from the terminal grid and widget canvas.
+4. **True split-pane resizing** — current terminal layout is a responsive auto-grid; draggable resize handles between panes would make it feel more like a real tiling terminal.
+5. **Command palette** — `Ctrl+K`-style launcher to spawn a named terminal/agent/widget without touching the mouse.
 
 ## Recent Changes
 
+- **2026-07-07** — Auto-Update System: packaged the app as a Windows installer (unsigned, via electron-builder), added a GitHub Actions release pipeline, and a toolbar "Update Available" button that downloads and restarts the app on click.
 - **2026-07-06** — GUI Modernization: visual polish pass — toolbar/pane/widget shadows, greyed-out disabled buttons, and fixed a z-index conflict so maximized panes correctly stack above the widget canvas.
 - **2026-07-06** — GUI Modernization: project folder selection now survives restarts, saved alongside the widget layout.
 - **2026-07-06** — GUI Modernization: populated the widget canvas with Active Sessions, Git Status, Rojo Sync Status, and a stubbed Roblox Analytics widget — live data, safely escaped, with proper cleanup on removal.
