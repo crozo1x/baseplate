@@ -6,6 +6,7 @@ Currently being reworked into a Roblox-first "vibe coding" control center — se
 
 ## Recent Changes
 
+- **2026-07-06** — GUI Modernization: visual polish pass — toolbar/pane/widget shadows, greyed-out disabled buttons, and fixed a z-index conflict so maximized panes correctly stack above the widget canvas.
 - **2026-07-06** — GUI Modernization: project folder selection now survives restarts, saved alongside the widget layout.
 - **2026-07-06** — GUI Modernization: populated the widget canvas with Active Sessions, Git Status, Rojo Sync Status, and a stubbed Roblox Analytics widget — live data, safely escaped, with proper cleanup on removal.
 - **2026-07-06** — GUI Modernization: added the GridStack-powered freeform widget canvas skeleton (add/remove/drag/resize plumbing, layout persistence) — no widgets yet, that's next.
