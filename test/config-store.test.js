@@ -16,6 +16,12 @@ test('saveConfig then loadConfig round-trips data', () => {
   const config = {
     projectFolder: 'C:\\Roblox\\MyGame',
     widgets: [{ type: 'git-status', x: 0, y: 0, w: 3, h: 3 }],
+    builder: {
+      ideaText: 'a tycoon about running a bakery',
+      chips: ['tycoon', 'leaderstats'],
+      plan: null,
+      scriptsTested: { 'Leaderstats.server.lua': true },
+    },
   };
   saveConfig(filePath, config);
   const result = loadConfig(filePath);
@@ -28,5 +34,21 @@ test('loadConfig falls back to defaults on invalid JSON', () => {
   fs.writeFileSync(filePath, '{not valid json', 'utf8');
   const result = loadConfig(filePath);
   assert.deepEqual(result, defaultConfig());
+  fs.unlinkSync(filePath);
+});
+
+test('loadConfig defaults builder state when missing from an older config file', () => {
+  const filePath = path.join(os.tmpdir(), `config-store-test-${Date.now()}-legacy.json`);
+  fs.writeFileSync(filePath, JSON.stringify({ projectFolder: 'C:\\Old', widgets: [] }), 'utf8');
+  const result = loadConfig(filePath);
+  assert.deepEqual(result.builder, { ideaText: '', chips: [], plan: null, scriptsTested: {} });
+  fs.unlinkSync(filePath);
+});
+
+test('loadConfig defaults builder state when it is present but malformed', () => {
+  const filePath = path.join(os.tmpdir(), `config-store-test-${Date.now()}-malformed.json`);
+  fs.writeFileSync(filePath, JSON.stringify({ projectFolder: null, widgets: [], builder: 'not an object' }), 'utf8');
+  const result = loadConfig(filePath);
+  assert.deepEqual(result.builder, { ideaText: '', chips: [], plan: null, scriptsTested: {} });
   fs.unlinkSync(filePath);
 });
