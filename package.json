@@ -2,6 +2,10 @@
   "name": "claude-build-center",
   "version": "0.1.0",
   "description": "Local control center for Claude Code terminals and local AI agents",
+  "author": {
+    "name": "crozo1x",
+    "email": "selfbrandbusiness@gmail.com"
+  },
   "main": "main.js",
   "scripts": {
     "start": "electron .",
