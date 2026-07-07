@@ -1,0 +1,19 @@
+{
+  "name": "claude-build-center",
+  "version": "0.1.0",
+  "description": "Local control center for Claude Code terminals and local AI agents",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "rebuild": "electron-rebuild -f -w node-pty"
+  },
+  "dependencies": {
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "node-pty": "^1.0.0"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.6.1",
+    "electron": "^31.3.0"
+  }
+}

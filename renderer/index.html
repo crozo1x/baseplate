@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Build Center</title>
+  <link rel="stylesheet" href="../node_modules/@xterm/xterm/css/xterm.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="toolbar">
+    <div id="brand">BUILD CENTER</div>
+    <select id="shellSelect" title="Shell for new terminals">
+      <option value="powershell.exe">PowerShell</option>
+      <option value="cmd.exe">cmd</option>
+    </select>
+    <button id="btnNewTerminal">+ Terminal</button>
+    <button id="btnNewClaude">+ Claude Session</button>
+  </div>
+  <div id="panes"></div>
+  <script src="../node_modules/@xterm/xterm/lib/xterm.js"></script>
+  <script src="../node_modules/@xterm/addon-fit/lib/addon-fit.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>
