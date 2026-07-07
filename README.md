@@ -29,12 +29,12 @@ See `docs/superpowers/specs/` for design docs and `docs/superpowers/plans/` for 
 
 The native-compile step for `node-pty` is the one place `npm install` can go sideways on a fresh machine. If step 3 is missing, it'll fail with a `gyp` or `MSBuild` error — install the Build Tools and re-run.
 
-**A note on working directory (Windows):** if you're running this from a deeply nested folder (e.g. inside another tool's session/temp directory), `npm install` and `git init` can fail with cryptic `ENOENT`/"Filename too long" errors once the path exceeds Windows' 260-character limit — this affects `node-gyp`'s native build step and git's `.git` directory creation. If you hit this, move the project to a short, stable path (e.g. `C:\Users\<you>\Projects\claude-build-center`) and retry from there.
+**A note on working directory (Windows):** if you're running this from a deeply nested folder (e.g. inside another tool's session/temp directory), `npm install` and `git init` can fail with cryptic `ENOENT`/"Filename too long" errors once the path exceeds Windows' 260-character limit — this affects `node-gyp`'s native build step and git's `.git` directory creation. If you hit this, move the project to a short, stable path (e.g. `C:\Users\<you>\Projects\baseplate`) and retry from there.
 
 ## Install & run
 
 ```
-cd claude-build-center
+cd baseplate
 npm install
 npm start
 ```
@@ -60,7 +60,7 @@ Runs the unit test suite (Node's built-in `node --test`) covering the pure logic
 ## Project layout
 
 ```
-claude-build-center/
+baseplate/
   package.json
   main.js                    Electron main process: window, pty lifecycle, and all IPC handlers
   preload.js                 contextBridge: exposes a locked-down window.api to the renderer

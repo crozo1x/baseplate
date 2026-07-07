@@ -27,7 +27,7 @@
     "publish": {
       "provider": "github",
       "owner": "crozo1x",
-      "repo": "claude-build-center"
+      "repo": "baseplate"
     }
   },
   "dependencies": {
