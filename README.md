@@ -109,6 +109,7 @@ claude-build-center/
 
 ## Recent Changes
 
+- **2026-07-07** — Rojo Integration: replaced the fake Rojo sync status with real detection — install check, `rojo serve` output parsing, and HTTP health polling — plus install guidance and a staleness warning on Play/Test.
 - **2026-07-06** — GUI Modernization: visual polish pass — toolbar/pane/widget shadows, greyed-out disabled buttons, and fixed a z-index conflict so maximized panes correctly stack above the widget canvas.
 - **2026-07-06** — GUI Modernization: project folder selection now survives restarts, saved alongside the widget layout.
 - **2026-07-06** — GUI Modernization: populated the widget canvas with Active Sessions, Git Status, Rojo Sync Status, and a stubbed Roblox Analytics widget — live data, safely escaped, with proper cleanup on removal.
