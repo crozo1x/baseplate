@@ -31,6 +31,8 @@ window.api.onExit(({ id }) => {
     const statusEl = s.paneEl.querySelector('.status');
     statusEl.textContent = 'exited';
     s.paneEl.classList.add('exited');
+    s.exited = true;
+    publishSessions();
   }
 });
 
@@ -39,7 +41,7 @@ function makeId() {
   return 'term-' + counter + '-' + Date.now();
 }
 
-function createPane({ title, autoRun }) {
+function createPane({ title, autoRun, kind, cwd }) {
   const id = makeId();
   const paneEl = document.createElement('div');
   paneEl.className = 'pane';
@@ -74,17 +76,21 @@ function createPane({ title, autoRun }) {
 
   term.onData((data) => window.api.input(id, data));
 
-  sessions.set(id, { term, fitAddon, paneEl });
+  sessions.set(id, { term, fitAddon, paneEl, title, kind: kind || 'terminal', exited: false });
+  publishSessions();
 
   window.api.spawn(id, {
     shell: shellSelect.value,
     cols: term.cols,
     rows: term.rows,
     autoRun,
+    cwd,
   }).then((res) => {
     if (res && res.ok === false) {
       term.write(`\r\n[failed to start shell: ${res.error}]\r\n`);
       paneEl.classList.add('exited');
+      sessions.get(id).exited = true;
+      publishSessions();
     }
   });
 
@@ -103,6 +109,7 @@ function createPane({ title, autoRun }) {
     resizeObserver.disconnect();
     term.dispose();
     sessions.delete(id);
+    publishSessions();
     paneEl.remove();
   });
 
@@ -119,8 +126,25 @@ function createPane({ title, autoRun }) {
   term.focus();
 }
 
+function publishSessions() {
+  window.BuildCenter.setSessions(
+    Array.from(sessions.entries()).map(([id, s]) => ({
+      id,
+      title: s.title,
+      kind: s.kind,
+      exited: s.exited,
+    }))
+  );
+}
+
 btnNewTerminal.addEventListener('click', () => {
   createPane({ title: 'Terminal' });
+});
+
+const btnNewScript = document.getElementById('btnNewScript');
+
+btnNewScript.addEventListener('click', () => {
+  createPane({ title: 'New Script', autoRun: 'claude' });
 });
 
 // Start with one plain terminal open so the app isn't empty on launch.
