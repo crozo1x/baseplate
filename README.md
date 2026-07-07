@@ -102,10 +102,9 @@ claude-build-center/
 
 1. **Roblox skill content** — "New Script" currently just opens a plain Claude Code session; authoring actual Luau/Roblox-specific Claude Code skills for it to invoke is a separate follow-up project.
 2. **Roblox Open Cloud analytics** — the Roblox Analytics widget is a stub; wiring up live player/visit counts requires an API key and its own design pass.
-3. **Auto-update system** — an in-app "update available" → download → restart/relaunch flow for distributing the packaged app, spec'd separately from the GUI work.
-4. **Local agent/process manager** — a side panel for other local AI agent processes (Ollama models, custom Python agent loops, etc.), separate from the terminal grid and widget canvas.
-5. **True split-pane resizing** — current terminal layout is a responsive auto-grid; draggable resize handles between panes would make it feel more like a real tiling terminal.
-6. **Command palette** — `Ctrl+K`-style launcher to spawn a named terminal/agent/widget without touching the mouse.
+3. **Local agent/process manager** — a side panel for other local AI agent processes (Ollama models, custom Python agent loops, etc.), separate from the terminal grid and widget canvas.
+4. **True split-pane resizing** — current terminal layout is a responsive auto-grid; draggable resize handles between panes would make it feel more like a real tiling terminal.
+5. **Command palette** — `Ctrl+K`-style launcher to spawn a named terminal/agent/widget without touching the mouse.
 
 ## Recent Changes
 
