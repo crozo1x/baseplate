@@ -7,13 +7,18 @@ const btnSyncStudio = document.getElementById('btnSyncStudio');
 const btnPlayTest = document.getElementById('btnPlayTest');
 const toolbarNotice = document.getElementById('toolbarNotice');
 let toolbarNoticeTimer = null;
+let toolbarNoticePersistent = false;
 
 // Helper to show a dismissible notice in the toolbar.
 // If html ever contains dynamic/user-supplied content, it MUST be pre-escaped
 // with escapeHtml() (see renderer/widgets.js) before being passed in here.
 function showToolbarNotice(html, durationMs) {
+  if (toolbarNoticePersistent && !toolbarNotice.classList.contains('hidden') && durationMs) {
+    return; // don't let a transient notice silently clobber an unread persistent one
+  }
   toolbarNotice.innerHTML = html;
   toolbarNotice.classList.remove('hidden');
+  toolbarNoticePersistent = !durationMs;
   if (toolbarNoticeTimer) clearTimeout(toolbarNoticeTimer);
   if (durationMs) {
     toolbarNoticeTimer = setTimeout(() => {
@@ -24,6 +29,7 @@ function showToolbarNotice(html, durationMs) {
 
 toolbarNotice.addEventListener('click', () => {
   toolbarNotice.classList.add('hidden');
+  toolbarNoticePersistent = false;
 });
 
 function updateProjectFolderUI(folder) {
