@@ -6,6 +6,7 @@ Currently being reworked into a Roblox-first "vibe coding" control center — se
 
 ## Recent Changes
 
+- **2026-07-06** — GUI Modernization: added the project folder picker ("Set Project Folder" button) and a shared renderer state module for the widget system to come.
 - **2026-07-06** — GUI Modernization: added config load/save IPC handlers, persisting to a JSON file under Electron's userData directory.
 - **2026-07-06** — GUI Modernization: removed the native Electron menu bar (File/Edit/View/Window/Help).
 - **2026-07-06** — GUI Modernization: added the Rojo sync status module (`renderer/lib/rojo-status.js`), the last of the four pure logic modules underpinning the widget system.
