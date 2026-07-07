@@ -7,7 +7,24 @@
     "start": "electron .",
     "dev": "electron .",
     "rebuild": "electron-rebuild -f -w node-pty",
-    "test": "node --test"
+    "test": "node --test",
+    "dist": "electron-builder --publish never"
+  },
+  "build": {
+    "appId": "com.crozo1x.claude-build-center",
+    "productName": "Build Center",
+    "npmRebuild": false,
+    "asarUnpack": [
+      "**/node_modules/node-pty/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "crozo1x",
+      "repo": "claude-build-center"
+    }
   },
   "dependencies": {
     "@xterm/addon-fit": "^0.10.0",
@@ -17,6 +34,7 @@
   },
   "devDependencies": {
     "@electron/rebuild": "^3.6.1",
-    "electron": "^31.3.0"
+    "electron": "^31.3.0",
+    "electron-builder": "^26.15.3"
   }
 }
