@@ -495,4 +495,6 @@ Watch the Actions tab on GitHub — confirm the `Release` workflow runs successf
 
 Then, on a machine with the OLDER `v0.1.0` build still installed (from Task 1's local test install, or a fresh `npm run dist` of the pre-bump code): launch it, wait ~5 seconds, confirm the "Update Available" button appears, click it, confirm it downloads and the app restarts itself into the new version (check the "About"/version — or simplest, confirm the Start Menu / installed version now shows `0.1.1`).
 
+While testing this, open a terminal pane (ideally a "Sync to Studio" pane, if a Roblox project folder is set up) before clicking the update button, so there's a live child process running. After the restart completes, check Task Manager to confirm no orphaned shell/`rojo` process was left behind — `quitAndInstall()` triggers Electron's normal quit sequence, which should route through the existing `window-all-closed` handler's pty cleanup, but this hasn't been exercised end-to-end until now.
+
 This is the one piece of this whole feature that cannot be verified any earlier than this, since it requires a real published release to check against — do not skip it or assume it works from the unit tests and manual launches alone.
