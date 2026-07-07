@@ -27,7 +27,7 @@ function setRojoStatus(id, patch) {
     { folder }
   );
   rojoStatus.set(id, next);
-  if (mainWindow) {
+  if (mainWindow && isAuthoritativePane(id, folder)) {
     mainWindow.webContents.send('rojo:status', Object.assign({ paneId: id }, next));
   }
 }
@@ -38,6 +38,23 @@ function clearRojoHealthTimer(id) {
     clearInterval(timer);
     rojoHealthTimers.delete(id);
   }
+}
+
+function isAuthoritativePane(id, folder) {
+  let matchId = null;
+  for (const [pid, meta] of paneMeta.entries()) {
+    if (meta.kind === 'sync-to-studio' && meta.cwd === folder) {
+      matchId = pid;
+    }
+  }
+  return matchId === id;
+}
+
+function hasLivePaneForFolder(folder) {
+  for (const meta of paneMeta.values()) {
+    if (meta.kind === 'sync-to-studio' && meta.cwd === folder) return true;
+  }
+  return false;
 }
 
 function createWindow() {
@@ -146,13 +163,15 @@ ipcMain.handle('pty:spawn', (event, opts) => {
     const meta = paneMeta.get(id);
     if (meta && meta.kind === 'sync-to-studio') {
       clearRojoHealthTimer(id);
-      if (mainWindow) {
+      paneMeta.delete(id);
+      rojoStatus.delete(id);
+      paneLineBuffers.delete(id);
+      if (mainWindow && !hasLivePaneForFolder(meta.cwd)) {
         mainWindow.webContents.send('rojo:status', { paneId: id, state: 'not-started', detail: null, port: null, folder: meta.cwd });
       }
+    } else {
+      paneMeta.delete(id);
     }
-    paneMeta.delete(id);
-    rojoStatus.delete(id);
-    paneLineBuffers.delete(id);
   });
 
   if (autoRun) {
