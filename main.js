@@ -13,6 +13,7 @@ const terminals = new Map(); // id -> pty process
 const paneMeta = new Map(); // id -> { kind, cwd }
 const rojoStatus = new Map(); // id -> { state, detail, port, folder }
 const rojoHealthTimers = new Map(); // id -> interval handle
+const paneLineBuffers = new Map(); // id -> trailing partial line
 let mainWindow;
 const configPath = path.join(app.getPath('userData'), 'config.json');
 
@@ -74,6 +75,8 @@ app.on('window-all-closed', () => {
     }
   }
   terminals.clear();
+  for (const timer of rojoHealthTimers.values()) clearInterval(timer);
+  rojoHealthTimers.clear();
   if (process.platform !== 'darwin') app.quit();
 });
 
@@ -109,7 +112,10 @@ ipcMain.handle('pty:spawn', (event, opts) => {
 
     const meta = paneMeta.get(id);
     if (meta && meta.kind === 'sync-to-studio') {
-      data.split(/\r?\n/).forEach((line) => {
+      const combined = (paneLineBuffers.get(id) || '') + data;
+      const lines = combined.split(/\r?\n/);
+      paneLineBuffers.set(id, lines.pop()); // last element has no trailing newline yet; keep it for next chunk
+      lines.forEach((line) => {
         const parsed = classifyRojoLine(line);
         if (!parsed) return;
 
@@ -118,6 +124,7 @@ ipcMain.handle('pty:spawn', (event, opts) => {
           setRojoStatus(id, { state: 'serving', detail: null, port: parsed.port });
           const timer = setInterval(async () => {
             const health = await checkRojoHealth(parsed.port);
+            if (!paneMeta.has(id)) return;
             if (health.healthy) {
               setRojoStatus(id, { state: 'serving', detail: null, port: parsed.port });
             } else {
@@ -139,9 +146,13 @@ ipcMain.handle('pty:spawn', (event, opts) => {
     const meta = paneMeta.get(id);
     if (meta && meta.kind === 'sync-to-studio') {
       clearRojoHealthTimer(id);
-      setRojoStatus(id, { state: 'not-started', detail: null, port: null });
+      if (mainWindow) {
+        mainWindow.webContents.send('rojo:status', { paneId: id, state: 'not-started', detail: null, port: null, folder: meta.cwd });
+      }
     }
     paneMeta.delete(id);
+    rojoStatus.delete(id);
+    paneLineBuffers.delete(id);
   });
 
   if (autoRun) {
