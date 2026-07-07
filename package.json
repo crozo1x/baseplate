@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "dev": "electron .",
     "rebuild": "electron-rebuild -f -w node-pty",
     "test": "node --test"
   },
