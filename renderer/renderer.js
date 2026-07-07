@@ -8,6 +8,9 @@ const btnPlayTest = document.getElementById('btnPlayTest');
 const toolbarNotice = document.getElementById('toolbarNotice');
 let toolbarNoticeTimer = null;
 
+// Helper to show a dismissible notice in the toolbar.
+// If html ever contains dynamic/user-supplied content, it MUST be pre-escaped
+// with escapeHtml() (see renderer/widgets.js) before being passed in here.
 function showToolbarNotice(html, durationMs) {
   toolbarNotice.innerHTML = html;
   toolbarNotice.classList.remove('hidden');
