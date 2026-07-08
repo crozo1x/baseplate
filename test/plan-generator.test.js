@@ -54,3 +54,18 @@ test('generatePlan playtest checklist always includes multi-player testing guida
   const plan = generatePlan({ ideaText: '', chips: [] });
   assert.ok(plan.playtestChecklist.some((line) => line.includes('2+ simulated players')));
 });
+
+test('generatePlan with roundBased chip produces a round-focused core loop and concept summary', () => {
+  const plan = generatePlan({ ideaText: '', chips: ['roundBased'] });
+  assert.match(plan.coreLoop, /round/i);
+  assert.match(plan.conceptSummary, /Round-Based Minigame/);
+});
+
+test('generatePlan always includes safety notes mentioning RemoteEvent, regardless of chips', () => {
+  const withChips = generatePlan({ ideaText: '', chips: ['tycoon', 'shop'] });
+  const withoutChips = generatePlan({ ideaText: '', chips: [] });
+  assert.ok(Array.isArray(withChips.safetyNotes));
+  assert.ok(withChips.safetyNotes.some((line) => line.includes('RemoteEvent')));
+  assert.ok(Array.isArray(withoutChips.safetyNotes));
+  assert.ok(withoutChips.safetyNotes.some((line) => line.includes('RemoteEvent')));
+});
