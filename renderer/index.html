@@ -8,32 +8,50 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="toolbar">
-    <div id="brand">BASEPLATE</div>
-    <button id="btnProjectFolder" title="Set the Roblox project folder">Set Project Folder</button>
-    <span id="projectFolderLabel">No project set</span>
-    <select id="shellSelect" title="Shell for new terminals">
-      <option value="powershell.exe">PowerShell</option>
-      <option value="cmd.exe">cmd</option>
-    </select>
-    <button id="btnNewTerminal">+ Terminal</button>
-    <button id="btnNewScript">New Script</button>
-    <button id="btnSyncStudio" disabled title="Set a project folder first">Sync to Studio</button>
-    <button id="btnPlayTest" disabled title="Set a project folder first">Play / Test</button>
-    <button id="btnAddWidget">+ Widget</button>
-    <button id="btnUpdateAvailable" class="hidden">Update Available</button>
+  <div id="tabBar">
+    <button class="tab-btn active" data-tab="idea">Idea</button>
+    <button class="tab-btn" data-tab="plan">Plan</button>
+    <button class="tab-btn" data-tab="scripts">Scripts</button>
+    <button class="tab-btn" data-tab="debug">Debug</button>
+    <button class="tab-btn" data-tab="advanced">Advanced</button>
   </div>
-  <div id="workspace">
-    <div id="panes"></div>
-    <div id="widgetCanvas" class="grid-stack"></div>
+
+  <div id="tabPanels">
+    <div id="tabIdea" class="tab-panel active"></div>
+    <div id="tabPlan" class="tab-panel"></div>
+    <div id="tabScripts" class="tab-panel"></div>
+    <div id="tabDebug" class="tab-panel"></div>
+    <div id="tabAdvanced" class="tab-panel">
+      <div id="toolbar">
+        <div id="brand">BASEPLATE</div>
+        <button id="btnProjectFolder" title="Set the Roblox project folder">Set Project Folder</button>
+        <span id="projectFolderLabel">No project set</span>
+        <select id="shellSelect" title="Shell for new terminals">
+          <option value="powershell.exe">PowerShell</option>
+          <option value="cmd.exe">cmd</option>
+        </select>
+        <button id="btnNewTerminal">+ Terminal</button>
+        <button id="btnNewScript">New Script</button>
+        <button id="btnSyncStudio" disabled title="Set a project folder first">Sync to Studio</button>
+        <button id="btnPlayTest" disabled title="Set a project folder first">Play / Test</button>
+        <button id="btnAddWidget">+ Widget</button>
+        <button id="btnUpdateAvailable" class="hidden">Update Available</button>
+      </div>
+      <div id="workspace">
+        <div id="panes"></div>
+        <div id="widgetCanvas" class="grid-stack"></div>
+      </div>
+      <div id="widgetPicker" class="widget-picker hidden"></div>
+    </div>
   </div>
-  <div id="widgetPicker" class="widget-picker hidden"></div>
+
   <script src="../node_modules/@xterm/xterm/lib/xterm.js"></script>
   <script src="../node_modules/@xterm/addon-fit/lib/addon-fit.js"></script>
   <script src="../node_modules/gridstack/dist/gridstack-all.js"></script>
   <script src="state.js"></script>
   <script src="lib/rojo-status.js"></script>
   <script src="widgets.js"></script>
+  <script src="tabs.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>

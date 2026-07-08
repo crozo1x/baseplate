@@ -11,6 +11,51 @@ html, body {
   overflow: hidden;
 }
 
+#tabBar {
+  display: flex;
+  gap: 4px;
+  padding: 8px 14px 0;
+  background: #05070a;
+  border-bottom: 1px solid #21262d;
+}
+
+.tab-btn {
+  background: transparent;
+  color: #8b949e;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tab-btn:hover {
+  color: #c9d1d9;
+  background: #161b22;
+}
+
+.tab-btn.active {
+  color: #58a6ff;
+  background: #0d1117;
+  border-color: #21262d;
+}
+
+.tab-panel {
+  display: none;
+  height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+#tabAdvanced.active {
+  display: flex;
+  flex-direction: column;
+}
+
 #toolbar {
   display: flex;
   align-items: center;
@@ -87,7 +132,7 @@ html, body {
 
 #workspace {
   position: relative;
-  height: calc(100vh - 46px);
+  height: calc(100vh - 86px);
 }
 
 #panes {
@@ -114,7 +159,7 @@ html, body {
 
 .widget-picker {
   position: absolute;
-  top: 46px;
+  top: 86px;
   right: 8px;
   background: #161b22;
   border: 1px solid #30363d;
@@ -204,7 +249,7 @@ html, body {
 .pane.maximized {
   grid-column: 1 / -1;
   grid-row: 1 / -1;
-  height: calc(100vh - 62px);
+  height: calc(100vh - 102px);
   position: relative;
   z-index: 5;
 }
