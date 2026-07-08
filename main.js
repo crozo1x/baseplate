@@ -10,6 +10,7 @@ const { findPlaceFile } = require('./lib/find-place-file');
 const { autoUpdater } = require('electron-updater');
 const { attachUpdaterEvents } = require('./lib/updater');
 
+const ALLOWED_SHELLS = ['powershell.exe', 'cmd.exe'];
 const terminals = new Map(); // id -> pty process
 let mainWindow;
 const configPath = path.join(app.getPath('userData'), 'config.json');
@@ -79,7 +80,7 @@ app.on('activate', () => {
 
 ipcMain.handle('pty:spawn', (event, opts) => {
   const { id, shell, cwd, cols, rows, autoRun } = opts;
-  const shellPath = shell || process.env.COMSPEC || 'powershell.exe';
+  const shellPath = ALLOWED_SHELLS.includes(shell) ? shell : (process.env.COMSPEC || 'powershell.exe');
 
   let term;
   try {
