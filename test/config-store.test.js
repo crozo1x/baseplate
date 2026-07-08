@@ -52,3 +52,11 @@ test('loadConfig defaults builder state when it is present but malformed', () =>
   assert.deepEqual(result.builder, { ideaText: '', chips: [], plan: null, scriptsTested: {} });
   fs.unlinkSync(filePath);
 });
+
+test('loadConfig defaults plan to null when it is an array instead of an object', () => {
+  const filePath = path.join(os.tmpdir(), `config-store-test-${Date.now()}-plan-array.json`);
+  fs.writeFileSync(filePath, JSON.stringify({ projectFolder: null, widgets: [], builder: { plan: [1, 2, 3] } }), 'utf8');
+  const result = loadConfig(filePath);
+  assert.equal(result.builder.plan, null);
+  fs.unlinkSync(filePath);
+});
