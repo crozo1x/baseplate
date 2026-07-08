@@ -4,6 +4,9 @@ const os = require('os');
 const {
   normalizeFolderArg,
   sanitizeConfig,
+  sanitizeTerminalIdPayload,
+  sanitizeTerminalInputPayload,
+  sanitizeTerminalResizePayload,
   sanitizeTerminalSpawnOptions,
 } = require('../lib/ipc-guards');
 
@@ -85,5 +88,27 @@ test('sanitizeConfig strips invalid persisted widget data', () => {
   assert.deepEqual(result, {
     projectFolder: null,
     widgets: [{ type: 'git-status', x: 0, y: 200, w: 12, h: 1 }],
+  });
+});
+
+test('terminal control payload guards reject malformed renderer messages', () => {
+  assert.equal(sanitizeTerminalIdPayload(null).ok, false);
+  assert.equal(sanitizeTerminalIdPayload({ id: '../term' }).ok, false);
+  assert.deepEqual(sanitizeTerminalIdPayload({ id: 'term:1_ok' }), { ok: true, id: 'term:1_ok' });
+
+  assert.equal(sanitizeTerminalInputPayload({ id: 'term-1', data: Buffer.from('x') }).ok, false);
+  assert.deepEqual(sanitizeTerminalInputPayload({ id: 'term-1', data: 'help\r' }), {
+    ok: true,
+    id: 'term-1',
+    data: 'help\r',
+  });
+});
+
+test('terminal resize payload guard clamps dimensions', () => {
+  assert.deepEqual(sanitizeTerminalResizePayload({ id: 'term-1', cols: 1, rows: 999 }), {
+    ok: true,
+    id: 'term-1',
+    cols: 20,
+    rows: 200,
   });
 });

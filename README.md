@@ -117,6 +117,15 @@ baseplate/
 - Widget render functions that subscribe to live state (Active Sessions, Git Status, Rojo Sync Status) return a `dispose()` function, called when the widget is removed, to clear timers/unsubscribe listeners and avoid leaks.
 - User-influenced text (git branch names, session titles) is HTML-escaped before being inserted into the DOM — branch names in particular can contain arbitrary characters, and this app's own terminal-spawning IPC makes that a real injection path if left unescaped.
 
+## Security boundaries
+
+BasePlate runs local developer tools, so renderer-to-main IPC must stay intentionally narrow:
+
+- Terminal spawning is limited in `lib/ipc-guards.js` to known shell executables and named autorun profiles (`claude`, `rojo serve`). Do not pass arbitrary renderer-provided commands directly to `node-pty`.
+- Project-folder, Git, Rojo, and Play/Test actions validate folder paths in the main process before touching the filesystem or launching external tools.
+- Persisted config is sanitized on save and load before renderer code receives it; new persisted builder/onboarding state should get the same guard-helper treatment and tests.
+- Renderer text that may come from projects, Git, sessions, or future generated Roblox content should be assigned with `textContent` or escaped before `innerHTML`.
+
 ## Extending it
 
 - **Add a shell option** (e.g. WSL, Git Bash): add an `<option>` to `#shellSelect` in `index.html` with the shell's executable path.
