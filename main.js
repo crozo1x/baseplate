@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, dialog, shell, session } = require('electron');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -7,10 +7,19 @@ const { execFile } = require('child_process');
 const { loadConfig, saveConfig } = require('./lib/config-store');
 const { parseGitStatus } = require('./lib/git-status');
 const { findPlaceFile } = require('./lib/find-place-file');
+const {
+  normalizeFolderArg,
+  sanitizeConfig,
+  sanitizeTerminalSpawnOptions,
+} = require('./lib/ipc-guards');
 const { autoUpdater } = require('electron-updater');
 const { attachUpdaterEvents } = require('./lib/updater');
+const {
+  buildSecurityHeaders,
+  isExternalHttpUrl,
+  shouldAllowNavigation,
+} = require('./lib/security-policy');
 
-const ALLOWED_SHELLS = ['powershell.exe', 'cmd.exe'];
 const terminals = new Map(); // id -> pty process
 let mainWindow;
 const configPath = path.join(app.getPath('userData'), 'config.json');
@@ -24,12 +33,32 @@ attachUpdaterEvents(autoUpdater, (state) => {
   }
 });
 
+function applyRendererSecurityPolicy() {
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({ responseHeaders: buildSecurityHeaders(details.responseHeaders) });
+  });
+}
+
+function bindWindowSecurity(win) {
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (isExternalHttpUrl(url)) shell.openExternal(url).catch(() => {});
+    return { action: 'deny' };
+  });
+
+  win.webContents.on('will-navigate', (event, url) => {
+    if (shouldAllowNavigation(url, __dirname)) return;
+    event.preventDefault();
+    if (isExternalHttpUrl(url)) shell.openExternal(url).catch(() => {});
+  });
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1440,
     height: 900,
     backgroundColor: '#05070a',
     title: 'BasePlate',
+    icon: path.join(__dirname, 'assets', 'icon.png'),
     titleBarStyle: 'hidden',
     titleBarOverlay: {
       color: '#0d1117',
@@ -44,6 +73,8 @@ function createWindow() {
     },
   });
 
+  bindWindowSecurity(mainWindow);
+
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
   mainWindow.on('closed', () => {
@@ -53,6 +84,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   Menu.setApplicationMenu(null);
+  applyRendererSecurityPolicy();
   createWindow();
   setTimeout(() => {
     autoUpdater.checkForUpdates().catch(() => {
@@ -79,8 +111,18 @@ app.on('activate', () => {
 });
 
 ipcMain.handle('pty:spawn', (event, opts) => {
-  const { id, shell, cwd, cols, rows, autoRun } = opts;
-  const shellPath = ALLOWED_SHELLS.includes(shell) ? shell : (process.env.COMSPEC || 'powershell.exe');
+  const options = sanitizeTerminalSpawnOptions(opts, {
+    defaultShell: process.env.COMSPEC || 'powershell.exe',
+    defaultCwd: os.homedir(),
+  });
+  if (!options.ok) {
+    return { ok: false, error: options.error };
+  }
+
+  const { id, shellPath, cwd, cols, rows, autoRun } = options.value;
+  if (terminals.has(id)) {
+    return { ok: false, error: 'Terminal id is already in use' };
+  }
 
   let term;
   try {
@@ -148,7 +190,7 @@ ipcMain.handle('config:load', () => {
 });
 
 ipcMain.handle('config:save', (event, config) => {
-  saveConfig(configPath, config);
+  saveConfig(configPath, sanitizeConfig(config));
   return { ok: true };
 });
 
@@ -163,13 +205,16 @@ ipcMain.handle('project:selectFolder', async () => {
 });
 
 ipcMain.handle('git:status', (event, folder) => {
+  const folderResult = normalizeFolderArg(folder);
+  if (!folderResult.ok) return { isRepo: false, error: folderResult.error };
+
   return new Promise((resolve) => {
-    execFile('git', ['branch', '--show-current'], { cwd: folder }, (branchErr, branchOut) => {
+    execFile('git', ['branch', '--show-current'], { cwd: folderResult.folder }, (branchErr, branchOut) => {
       if (branchErr) {
         resolve({ isRepo: false });
         return;
       }
-      execFile('git', ['status', '--short'], { cwd: folder }, (statusErr, statusOut) => {
+      execFile('git', ['status', '--short'], { cwd: folderResult.folder }, (statusErr, statusOut) => {
         resolve(parseGitStatus(branchOut, statusErr ? '' : statusOut));
       });
     });
@@ -177,9 +222,12 @@ ipcMain.handle('git:status', (event, folder) => {
 });
 
 ipcMain.handle('roblox:playTest', (event, folder) => {
+  const folderResult = normalizeFolderArg(folder);
+  if (!folderResult.ok) return { ok: false, error: folderResult.error };
+
   let files;
   try {
-    files = fs.readdirSync(folder);
+    files = fs.readdirSync(folderResult.folder);
   } catch (err) {
     return { ok: false, error: String(err) };
   }
@@ -187,7 +235,7 @@ ipcMain.handle('roblox:playTest', (event, folder) => {
   if (!placeFile) {
     return { ok: false, error: 'No .rbxl or .rbxlx file found in project folder' };
   }
-  shell.openPath(path.join(folder, placeFile));
+  shell.openPath(path.join(folderResult.folder, placeFile));
   return { ok: true };
 });
 
