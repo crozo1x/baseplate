@@ -171,8 +171,9 @@ btnPlayTest.addEventListener('click', async () => {
   }
 });
 
-// Start with one plain terminal open so the app isn't empty on launch.
-createPane({ title: 'Terminal' });
+// Startup pane behavior lives in onboarding.js: returning users (project
+// folder already configured) get a terminal on launch as before; first-run
+// users see the onboarding guide instead.
 
 window.api.update.onStatus((payload) => {
   if (payload.state === 'available') {
