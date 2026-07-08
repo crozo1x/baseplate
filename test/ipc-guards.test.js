@@ -59,6 +59,23 @@ test('sanitizeTerminalSpawnOptions rejects arbitrary shells and autorun commands
   );
 });
 
+test('sanitizeTerminalSpawnOptions rejects renderer-supplied shell paths', () => {
+  assert.equal(
+    sanitizeTerminalSpawnOptions(
+      { id: 'term-path', shell: 'C:\\Temp\\powershell.exe' },
+      defaults
+    ).ok,
+    false
+  );
+
+  const defaultShellResult = sanitizeTerminalSpawnOptions(
+    { id: 'term-default' },
+    { defaultShell: 'C:\\Windows\\System32\\cmd.exe', defaultCwd: os.tmpdir() }
+  );
+  assert.equal(defaultShellResult.ok, true);
+  assert.equal(defaultShellResult.value.shellPath, 'C:\\Windows\\System32\\cmd.exe');
+});
+
 test('sanitizeTerminalSpawnOptions rejects invalid ids and missing folders', () => {
   assert.equal(
     sanitizeTerminalSpawnOptions({ id: '../term', shell: 'powershell.exe' }, defaults).ok,
