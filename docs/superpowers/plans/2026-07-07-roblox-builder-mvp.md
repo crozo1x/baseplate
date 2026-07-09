@@ -974,6 +974,7 @@ In `renderer/index.html`, replace the empty `<div id="tabIdea" class="tab-panel 
           <button class="chip" data-chip="tycoon">Tycoon</button>
           <button class="chip" data-chip="petGame">Pet Game</button>
           <button class="chip" data-chip="fightingArena">Fighting Arena</button>
+          <button class="chip" data-chip="roundBased">Round-Based Minigame</button>
         </div>
         <div class="chip-group" id="featureChips">
           <button class="chip" data-chip="leaderstats">Leaderstats</button>
@@ -1170,6 +1171,9 @@ function renderPlan(plan) {
 
     <h3>Playtest Checklist</h3>
     <ol>${plan.playtestChecklist.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
+
+    <h3>Client/Server Safety Notes</h3>
+    <ul class="safety-notes">${plan.safetyNotes.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}</ul>
   `;
 }
 
@@ -1215,6 +1219,13 @@ Add to `renderer/style.css`:
   font-size: 13px;
   white-space: pre;
   overflow-x: auto;
+}
+
+.safety-notes {
+  background: rgba(210, 153, 34, 0.1);
+  border: 1px solid #d29922;
+  border-radius: 8px;
+  padding: 12px 12px 12px 32px;
 }
 ```
 
@@ -1615,7 +1626,11 @@ function initDebugView() {
     result.innerHTML = `
       <div class="debug-result-card">
         <h3>${heading}</h3>
-        <p>${escapeHtml(diagnosis.fix)}</p>
+        <p><strong>Problem:</strong> ${escapeHtml(diagnosis.problem)}</p>
+        <p><strong>Likely cause:</strong> ${escapeHtml(diagnosis.likelyCause)}</p>
+        <strong>Fix steps:</strong>
+        <ol>${diagnosis.fixSteps.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol>
+        <p><strong>What to test next:</strong> ${escapeHtml(diagnosis.testNext)}</p>
       </div>
     `;
   });
@@ -1623,6 +1638,8 @@ function initDebugView() {
 
 initDebugView();
 ```
+
+Note: `lib/debug-matcher.js`'s `matchError()` was restructured (Task 5.5, after this task was originally drafted) from a flat `{matched, fix}` shape to `{matched, problem, likelyCause, fixSteps, testNext}` — the code above already reflects the current, correct shape. If you're reading an older version of this plan or any cached copy, do not use a `diagnosis.fix` reference; that field no longer exists on either the matched or fallback return value.
 
 - [ ] **Step 3: Style the Debug panel**
 
@@ -1655,6 +1672,17 @@ Add to `renderer/style.css`:
   color: #58a6ff;
 }
 
+.debug-result-card p {
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.debug-result-card ol {
+  margin: 4px 0 12px;
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
 .debug-warning {
   margin-top: 32px;
   padding: 16px;
@@ -1677,7 +1705,7 @@ In `renderer/index.html`, add `<script src="debug-view.js"></script>` after `scr
 
 - [ ] **Step 5: Manual verification**
 
-Run `npm start`, open the Debug tab, paste a sample error like `Workspace.Part is not a valid member of Model "Workspace"` and click Diagnose — confirm it shows the "X is not a valid member of Y" fix, not the generic fallback. Paste something unrelated (e.g. "asdf") and confirm the generic fallback appears instead of nothing.
+Run `npm start`, open the Debug tab, paste a sample error like `Workspace.Part is not a valid member of Model "Workspace"` and click Diagnose — confirm it shows the "X is not a valid member of Y" heading with distinct Problem/Likely cause/Fix steps/What to test next sections populated (not the generic fallback, and not the literal text "undefined" anywhere — that would indicate a stale `.fix` reference). Paste something unrelated (e.g. "asdf") and confirm the generic fallback's four sections appear instead of nothing.
 
 - [ ] **Step 6: Commit**
 
@@ -1707,10 +1735,10 @@ See `docs/superpowers/specs/` for design docs and `docs/superpowers/plans/` for 
 
 ## What it does
 
-- **Idea** — describe your game in your own words and pick genre/feature chips (Simulator, Obby, Tycoon, Pet Game, Fighting Arena, Leaderstats, Shop, Data Saving, UI Polish).
-- **Plan** — a deterministically generated (no AI call) build plan: concept summary, core loop, Roblox services you'll need, an Explorer-style folder tree, a setup checklist, and a playtest checklist that explicitly calls out multi-player testing.
+- **Idea** — describe your game in your own words and pick genre/feature chips (Simulator, Obby, Tycoon, Pet Game, Fighting Arena, Round-Based Minigame, Leaderstats, Shop, Data Saving, UI Polish).
+- **Plan** — a deterministically generated (no AI call) build plan: concept summary, core loop, Roblox services you'll need, an Explorer-style folder tree, a setup checklist, a playtest checklist that explicitly calls out multi-player testing, and client/server safety notes.
 - **Scripts** — 4 ready-to-use reference Luau scripts (leaderstats, a collectible pickup, a sell zone, a currency display) with filename, exact Studio placement path, purpose, one-click copy for code and path, and a persisted "tested" checkbox per script.
-- **Debug** — paste a Roblox Studio Output error and get a practical fix for the most common beginner mistakes (nil indexing, missing members, infinite yields, RemoteEvent issues, DataStore problems, wrong script type/location).
+- **Debug** — paste a Roblox Studio Output error and get a structured diagnosis (problem, likely cause, fix steps, what to test next) for the most common beginner mistakes (nil indexing, missing members, infinite yields, RemoteEvent issues, DataStore problems, wrong script type/location).
 - **Advanced** — the original terminal/Claude Code control center: real pty-backed terminal panes, Rojo sync, Play/Test, and the widget dashboard, unchanged.
 
 **Current limitations (MVP):** Plan generation and Scripts are template-based, not AI-generated — they cover common beginner patterns, not every possible game. Debug recognizes 6 specific error signatures; anything else gets general troubleshooting guidance and a pointer to use Advanced's "New Script" for a real Claude Code session on harder problems.

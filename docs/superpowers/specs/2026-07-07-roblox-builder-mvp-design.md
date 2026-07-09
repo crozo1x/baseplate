@@ -3,6 +3,7 @@
 **Date:** 2026-07-07
 **Status:** Approved, pending implementation plan
 **Follows:** GUI Modernization, Roblox Integration (PR #2, pending), Auto-Update System — all merged/in-flight on `main`
+**Amended 2026-07-08 (Task 5.5):** reconciling against `docs/agent-handoff/prompts/01-sonnet-builder-coach-mvp.md` (a more detailed official prompt that surfaced after this spec was written, via a separate multi-agent coordination effort) added a 6th genre chip ("Round-Based Minigame"), an always-present "Client/server safety notes" Plan section, and restructured Debug output from a flat fix string into Problem/Likely cause/Fix steps/What to test next. The rest of this spec is unchanged and still accurate — see `docs/superpowers/plans/2026-07-07-roblox-builder-mvp.md`'s Task 5.5 for the exact amendment.
 
 ## Problem
 
