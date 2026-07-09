@@ -128,7 +128,7 @@ BasePlate runs local developer tools, so renderer-to-main IPC must stay intentio
 
 ## Extending it
 
-- **Add a shell option** (e.g. WSL, Git Bash): add an `<option>` to `#shellSelect` in `index.html` with the shell's executable path.
+- **Add a shell option** (e.g. WSL, Git Bash): add a named launch profile in `#shellSelect` and update `lib/ipc-guards.js` to map that profile to an allowed executable in the main process. Do not pass arbitrary renderer-provided shell paths to `node-pty`.
 - **Change what "New Script" runs**: edit the `autoRun: 'claude'` call in `renderer.js` (e.g. `claude --resume`, or a wrapper script that `cd`s somewhere first).
 - **Add a new widget type**: add an entry to `WIDGET_CATALOG` in `widgets.js` with a `type`, `title`, and `render(container)` function; return a `dispose()` from `render` if it subscribes to live state or sets a timer.
 - **Default working directory per pane**: pass a `cwd` in the `window.api.spawn(...)` call in `renderer.js`.
