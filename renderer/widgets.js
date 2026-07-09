@@ -131,7 +131,12 @@ function persistConfig() {
         };
       })
     : [];
-  window.api.config.save({ projectFolder: window.BuildCenter.getProjectFolder(), widgets: items })
+  window.api.config
+    .save({
+      projectFolder: window.BuildCenter.getProjectFolder(),
+      widgets: items,
+      builder: window.BuildCenter.getBuilderState(),
+    })
     .catch((err) => console.error('Failed to save config:', err));
 }
 
@@ -162,6 +167,7 @@ async function initWidgets() {
     config = { projectFolder: null, widgets: [] };
   }
   window.BuildCenter.setProjectFolder(config.projectFolder);
+  window.BuildCenter.setBuilderStateFromConfig(config.builder);
   grid = GridStack.init({ float: true, cellHeight: 80, column: 12 }, '#widgetCanvas');
   config.widgets.forEach((w) => addWidgetToGrid(w.type, w));
   grid.on('change', persistConfig);

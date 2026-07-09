@@ -29,4 +29,8 @@ contextBridge.exposeInMainWorld('api', {
       return () => ipcRenderer.removeListener('update:status', listener);
     },
   },
+  logic: {
+    generatePlan: (input) => require('../lib/plan-generator').generatePlan(input),
+    matchError: (text) => require('../lib/debug-matcher').matchError(text),
+  },
 });
