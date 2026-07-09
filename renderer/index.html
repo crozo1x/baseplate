@@ -47,7 +47,22 @@
     <div id="tabScripts" class="tab-panel">
       <div class="builder-panel" id="scriptsContent"></div>
     </div>
-    <div id="tabDebug" class="tab-panel"></div>
+    <div id="tabDebug" class="tab-panel">
+      <div class="builder-panel">
+        <h2>Paste your Roblox Studio Output error</h2>
+        <textarea id="debugInput" placeholder="Paste the red error text from Studio's Output window here"></textarea>
+        <button id="btnDiagnose" class="primary-action">Diagnose</button>
+        <div id="debugResult"></div>
+        <div class="debug-warning">
+          <strong>Roblox-specific reminders:</strong>
+          <ul>
+            <li>Never trust data a client sends via a RemoteEvent — validate everything server-side (price, item ID, amount).</li>
+            <li>DataStore writes can fail or throttle — always wrap them in <code>pcall</code> and don't rely on a single save attempt.</li>
+            <li>Always test with 2+ simulated players before assuming something works — many bugs only appear with multiple clients.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <div id="tabAdvanced" class="tab-panel">
       <div id="toolbar">
         <div id="brand">BASEPLATE</div>
@@ -84,6 +99,7 @@
   <script src="idea-view.js"></script>
   <script src="plan-view.js"></script>
   <script src="scripts-view.js"></script>
+  <script src="debug-view.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>

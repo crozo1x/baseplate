@@ -518,3 +518,55 @@ html, body {
 .script-actions button:hover {
   border-color: #58a6ff;
 }
+
+#debugInput {
+  width: 100%;
+  min-height: 120px;
+  background: #0d1117;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 10px;
+  font-family: 'Cascadia Code', Consolas, monospace;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.debug-result-card {
+  margin-top: 20px;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.debug-result-card h3 {
+  margin: 0 0 8px;
+  color: #58a6ff;
+}
+
+.debug-result-card p {
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.debug-result-card ol {
+  margin: 4px 0 12px;
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
+.debug-warning {
+  margin-top: 32px;
+  padding: 16px;
+  background: rgba(210, 153, 34, 0.1);
+  border: 1px solid #d29922;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.debug-warning ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
