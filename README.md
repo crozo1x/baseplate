@@ -2,7 +2,7 @@
 
 A guided path from "I have a Roblox game idea" to a real build plan, reference Luau scripts, and practical debugging help — built for beginners, not just developers. The existing terminal/Claude Code control center is still here, now under the **Advanced** tab, for anyone who wants direct shell/AI-session access.
 
-See `docs/superpowers/specs/` for design docs and `docs/superpowers/plans/` for implementation plans as they land.
+See `docs/superpowers/specs/` for design docs and `docs/superpowers/plans/` for implementation plans as they land. Agent handoff prompts and release instructions live in `docs/agent-handoff/` for coordinated multi-agent work.
 
 ## What it does
 
