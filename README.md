@@ -128,7 +128,7 @@ baseplate/
 
 ## Recent Changes
 
-- **2026-07-07** — Roblox Vibe Coding Coach MVP: added a guided Idea/Plan/Scripts/Debug builder workflow as the app's default experience, with the terminal/Claude Code control center preserved under a new Advanced tab. Deterministic plan generation and error-pattern matching (no AI/network calls); persisted across restarts.
+- **2026-07-09** — Roblox Vibe Coding Coach MVP: added a guided Idea/Plan/Scripts/Debug builder workflow as the app's default experience, with the terminal/Claude Code control center preserved under a new Advanced tab. Deterministic plan generation and error-pattern matching (no AI/network calls); persisted across restarts.
 - **2026-07-08** - Windows App Packaging: added BasePlate app icon assets, installer shortcut config, and build scripts for a double-clickable Windows installer or unpacked EXE.
 - **2026-07-07** — Auto-Update System: packaged the app as a Windows installer (unsigned, via electron-builder), added a GitHub Actions release pipeline, and a toolbar "Update Available" button that downloads and restarts the app on click.
 - **2026-07-06** — GUI Modernization: visual polish pass — toolbar/pane/widget shadows, greyed-out disabled buttons, and fixed a z-index conflict so maximized panes correctly stack above the widget canvas.
