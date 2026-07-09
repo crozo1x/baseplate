@@ -73,7 +73,7 @@ which forces an Electron-ABI-matched rebuild of the native module.
 npm test
 ```
 
-Runs the unit test suite (Node's built-in `node --test`) covering the pure logic modules — config persistence, git status parsing, place-file lookup, and Rojo sync status inference. Electron UI/IPC isn't covered by automated tests (not meaningfully unit-testable); those are verified manually by running the app.
+Runs the unit test suite (Node's built-in `node --test`) covering the pure logic modules — config persistence and IPC input validation, git status parsing, place-file lookup, Rojo sync status inference, the Roblox builder's plan generator, and its debug error matcher. Electron UI/IPC isn't covered by automated tests (not meaningfully unit-testable); those are verified manually by running the app.
 
 ## Project layout
 
@@ -84,15 +84,25 @@ baseplate/
   preload.js                 contextBridge: exposes a locked-down window.api to the renderer
   assets/                    BasePlate app icon source and generated Windows icon files
   scripts/                   Build helper scripts such as icon generation
-  lib/                       Pure, unit-tested logic used by main.js
-    config-store.js          Load/save the JSON config file (project folder + widget layout)
+  lib/                       Pure, unit-tested logic used by main.js and the renderer (via preload)
+    config-store.js          Load/save the JSON config file (project folder + widget layout + builder state)
     git-status.js            Parses raw `git` CLI output into a status object
     find-place-file.js       Finds a .rbxl/.rbxlx file in a directory listing
+    ipc-guards.js            Validates/sanitizes terminal spawn options and persisted config before use
+    plan-generator.js        Deterministic Roblox build-plan generation from an idea + chip selection
+    debug-matcher.js         Pattern-matches Roblox Studio Output errors to practical fixes
   renderer/
-    index.html               Toolbar + terminal pane grid + widget canvas containers
+    index.html               Tab shell (Idea/Plan/Scripts/Debug/Advanced) + Advanced's terminal/widget containers
     renderer.js               Pane creation, xterm wiring, resize handling, session state publishing
     state.js                  Shared pub/sub (window.BuildCenter) for project folder + session state
     widgets.js                 Widget catalog, GridStack wiring, add/remove/persist
+    tabs.js                   Tab-bar switching between Idea/Plan/Scripts/Debug/Advanced
+    builder-state.js          Shared pub/sub + persistence for the Roblox builder's idea/plan/scripts state
+    idea-view.js              Idea tab: free-text + genre/feature chips
+    plan-view.js              Plan tab: renders the generated build plan
+    scripts-data.js           Static Luau reference script templates (leaderstats, collectibles, sell zone, currency GUI)
+    scripts-view.js           Scripts tab: script cards with copy-to-clipboard and tested-state
+    debug-view.js             Debug tab: paste a Studio error, get a structured diagnosis
     style.css                 Dark "Modern SaaS Dashboard" theme
     lib/
       rojo-status.js          Dual Node/browser module: infers Rojo sync state from session list
@@ -105,7 +115,7 @@ baseplate/
 ## How it works
 
 - `main.js` owns real `node-pty` processes (keyed by a per-pane id) and every other IPC handler: config load/save, the project folder dialog, git status (`child_process.execFile`), and Play/Test (`shell.openPath`).
-- `preload.js` exposes `window.api.{spawn,input,resize,kill,onData,onExit,config,project,git,roblox}` to the renderer over a locked-down contextBridge (no `nodeIntegration`, no raw `require` in the page).
+- `preload.js` exposes `window.api.{spawn,input,resize,kill,onData,onExit,config,project,git,roblox,update,logic}` to the renderer over a locked-down contextBridge (no `nodeIntegration`, no raw `require` in the page). `logic` wires the Roblox builder's pure `generatePlan`/`matchError` functions across the isolation boundary — no privileged operation, no IPC round-trip.
 - `renderer/state.js` is the single shared source of truth in the renderer for the current project folder and the list of open terminal sessions, so `renderer.js` (which owns the panes) and `widgets.js` (which owns the dashboard) can stay decoupled.
 - `renderer/widgets.js` uses GridStack.js (loaded via a plain `<script>` tag — no bundler) for the freeform drag/resize canvas, and persists layout + project folder together via `window.api.config`.
 - Widget render functions that subscribe to live state (Active Sessions, Git Status, Rojo Sync Status) return a `dispose()` function, called when the widget is removed, to clear timers/unsubscribe listeners and avoid leaks.
