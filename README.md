@@ -1,24 +1,18 @@
-# BasePlate - Roblox VibeCoding Experience
+# BasePlate - Roblox Vibe Coding Coach
 
-A Roblox-first "vibe coding" control center built on Electron: real terminal panes (PowerShell/cmd) for running Claude Code sessions side by side, a live widget dashboard, and quick-launch buttons for Roblox dev workflows (Rojo sync, Play/Test in Studio).
+A guided path from "I have a Roblox game idea" to a real build plan, reference Luau scripts, and practical debugging help — built for beginners, not just developers. The existing terminal/Claude Code control center is still here, now under the **Advanced** tab, for anyone who wants direct shell/AI-session access.
 
-See `docs/superpowers/specs/` for design docs and `docs/superpowers/plans/` for implementation plans as they land.
-
-Agent handoff prompts and release instructions live in `docs/agent-handoff/` for coordinated multi-agent work.
+See `docs/superpowers/specs/` for design docs and `docs/superpowers/plans/` for implementation plans as they land. Agent handoff prompts and release instructions live in `docs/agent-handoff/` for coordinated multi-agent work.
 
 ## What it does
 
-- **Set Project Folder** — point BasePlate at a Roblox project directory via a native folder picker. Widgets and the Sync/Play buttons operate on this folder, and the selection survives restarts.
-- **New Script** / **+ Terminal** — open a Claude Code session or plain shell pane. Each pane is a real pty-backed shell via `node-pty` + `xterm.js` — full interactivity, colors, prompts, everything.
-- **Sync to Studio** — runs `rojo serve` against the project folder in a pane. Disabled until a project folder is set.
-- **Play / Test** — opens the project's `.rbxl`/`.rbxlx` file with its OS default handler (Roblox Studio). Disabled until a project folder is set.
-- **Widget canvas** — a freeform, drag-and-resize dashboard (powered by GridStack.js) overlaying the terminal grid. Add widgets via the "+ Widget" picker:
-  - **Active Sessions** — live roster of open terminal panes and their state.
-  - **Git Status** — current branch and dirty state of the project folder, polling every 5s.
-  - **Rojo Sync Status** — whether a "Sync to Studio" session is currently running.
-  - **Roblox Analytics** — stubbed "coming soon" card; real Roblox Open Cloud integration is a separate future project.
-  - Widget layout (position, size, which widgets exist) persists across restarts alongside the project folder.
-- No native menu bar (File/Edit/View/Window/Help) — removed for a cleaner control-center feel.
+- **Idea** — describe your game in your own words and pick genre/feature chips (Simulator, Obby, Tycoon, Pet Game, Fighting Arena, Round-Based Minigame, Leaderstats, Shop, Data Saving, UI Polish).
+- **Plan** — a deterministically generated (no AI call) build plan: concept summary, core loop, Roblox services you'll need, an Explorer-style folder tree, a setup checklist, a playtest checklist that explicitly calls out multi-player testing, and client/server safety notes.
+- **Scripts** — 4 ready-to-use reference Luau scripts (leaderstats, a collectible pickup, a sell zone, a currency display) with filename, exact Studio placement path, purpose, one-click copy for code and path, and a persisted "tested" checkbox per script.
+- **Debug** — paste a Roblox Studio Output error and get a structured diagnosis (problem, likely cause, fix steps, what to test next) for the most common beginner mistakes (nil indexing, missing members, infinite yields, RemoteEvent issues, DataStore problems, wrong script type/location).
+- **Advanced** — the original terminal/Claude Code control center: real pty-backed terminal panes, Rojo sync, Play/Test, and the widget dashboard, unchanged.
+
+**Current limitations (MVP):** Plan generation and Scripts are template-based, not AI-generated — they cover common beginner patterns, not every possible game. Debug recognizes 6 specific error signatures; anything else gets general troubleshooting guidance and a pointer to use Advanced's "New Script" for a real Claude Code session on harder problems.
 
 ## Prerequisites (Windows)
 
@@ -79,7 +73,7 @@ which forces an Electron-ABI-matched rebuild of the native module.
 npm test
 ```
 
-Runs the unit test suite (Node's built-in `node --test`) covering the pure logic modules — config persistence, git status parsing, place-file lookup, and Rojo sync status inference. Electron UI/IPC isn't covered by automated tests (not meaningfully unit-testable); those are verified manually by running the app.
+Runs the unit test suite (Node's built-in `node --test`) covering the pure logic modules — config persistence and IPC input validation, git status parsing, place-file lookup, Rojo sync status inference, the Roblox builder's plan generator, and its debug error matcher. Electron UI/IPC isn't covered by automated tests (not meaningfully unit-testable); those are verified manually by running the app.
 
 ## Project layout
 
@@ -90,15 +84,25 @@ baseplate/
   preload.js                 contextBridge: exposes a locked-down window.api to the renderer
   assets/                    BasePlate app icon source and generated Windows icon files
   scripts/                   Build helper scripts such as icon generation
-  lib/                       Pure, unit-tested logic used by main.js
-    config-store.js          Load/save the JSON config file (project folder + widget layout)
+  lib/                       Pure, unit-tested logic used by main.js and the renderer (via preload)
+    config-store.js          Load/save the JSON config file (project folder + widget layout + builder state)
     git-status.js            Parses raw `git` CLI output into a status object
     find-place-file.js       Finds a .rbxl/.rbxlx file in a directory listing
+    ipc-guards.js            Validates/sanitizes terminal spawn options and persisted config before use
+    plan-generator.js        Deterministic Roblox build-plan generation from an idea + chip selection
+    debug-matcher.js         Pattern-matches Roblox Studio Output errors to practical fixes
   renderer/
-    index.html               Toolbar + terminal pane grid + widget canvas containers
+    index.html               Tab shell (Idea/Plan/Scripts/Debug/Advanced) + Advanced's terminal/widget containers
     renderer.js               Pane creation, xterm wiring, resize handling, session state publishing
     state.js                  Shared pub/sub (window.BuildCenter) for project folder + session state
     widgets.js                 Widget catalog, GridStack wiring, add/remove/persist
+    tabs.js                   Tab-bar switching between Idea/Plan/Scripts/Debug/Advanced
+    builder-state.js          Shared pub/sub + persistence for the Roblox builder's idea/plan/scripts state
+    idea-view.js              Idea tab: free-text + genre/feature chips
+    plan-view.js              Plan tab: renders the generated build plan
+    scripts-data.js           Static Luau reference script templates (leaderstats, collectibles, sell zone, currency GUI)
+    scripts-view.js           Scripts tab: script cards with copy-to-clipboard and tested-state
+    debug-view.js             Debug tab: paste a Studio error, get a structured diagnosis
     style.css                 Dark "Modern SaaS Dashboard" theme
     lib/
       rojo-status.js          Dual Node/browser module: infers Rojo sync state from session list
@@ -111,7 +115,7 @@ baseplate/
 ## How it works
 
 - `main.js` owns real `node-pty` processes (keyed by a per-pane id) and every other IPC handler: config load/save, the project folder dialog, git status (`child_process.execFile`), and Play/Test (`shell.openPath`).
-- `preload.js` exposes `window.api.{spawn,input,resize,kill,onData,onExit,config,project,git,roblox}` to the renderer over a locked-down contextBridge (no `nodeIntegration`, no raw `require` in the page).
+- `preload.js` exposes `window.api.{spawn,input,resize,kill,onData,onExit,config,project,git,roblox,update,logic}` to the renderer over a locked-down contextBridge (no `nodeIntegration`, no raw `require` in the page). `logic` wires the Roblox builder's pure `generatePlan`/`matchError` functions across the isolation boundary — no privileged operation, no IPC round-trip.
 - `renderer/state.js` is the single shared source of truth in the renderer for the current project folder and the list of open terminal sessions, so `renderer.js` (which owns the panes) and `widgets.js` (which owns the dashboard) can stay decoupled.
 - `renderer/widgets.js` uses GridStack.js (loaded via a plain `<script>` tag — no bundler) for the freeform drag/resize canvas, and persists layout + project folder together via `window.api.config`.
 - Widget render functions that subscribe to live state (Active Sessions, Git Status, Rojo Sync Status) return a `dispose()` function, called when the widget is removed, to clear timers/unsubscribe listeners and avoid leaks.
@@ -143,6 +147,7 @@ BasePlate runs local developer tools, so renderer-to-main IPC must stay intentio
 
 ## Recent Changes
 
+- **2026-07-09** — Roblox Vibe Coding Coach MVP: added a guided Idea/Plan/Scripts/Debug builder workflow as the app's default experience, with the terminal/Claude Code control center preserved under a new Advanced tab. Deterministic plan generation and error-pattern matching (no AI/network calls); persisted across restarts.
 - **2026-07-08** - Windows App Packaging: added BasePlate app icon assets, installer shortcut config, and build scripts for a double-clickable Windows installer or unpacked EXE.
 - **2026-07-07** — Auto-Update System: packaged the app as a Windows installer (unsigned, via electron-builder), added a GitHub Actions release pipeline, and a toolbar "Update Available" button that downloads and restarts the app on click.
 - **2026-07-06** — GUI Modernization: visual polish pass — toolbar/pane/widget shadows, greyed-out disabled buttons, and fixed a z-index conflict so maximized panes correctly stack above the widget canvas.

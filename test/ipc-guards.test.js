@@ -105,7 +105,40 @@ test('sanitizeConfig strips invalid persisted widget data', () => {
   assert.deepEqual(result, {
     projectFolder: null,
     widgets: [{ type: 'git-status', x: 0, y: 200, w: 12, h: 1 }],
+    builder: { ideaText: '', chips: [], plan: null, scriptsTested: {} },
   });
+});
+
+test('sanitizeConfig preserves valid persisted builder state', () => {
+  const result = sanitizeConfig({
+    projectFolder: null,
+    widgets: [],
+    builder: {
+      ideaText: 'a tycoon about running a bakery',
+      chips: ['tycoon', 'leaderstats'],
+      plan: { conceptSummary: 'x' },
+      scriptsTested: { 'Leaderstats.server.lua': true },
+    },
+  });
+
+  assert.deepEqual(result.builder, {
+    ideaText: 'a tycoon about running a bakery',
+    chips: ['tycoon', 'leaderstats'],
+    plan: { conceptSummary: 'x' },
+    scriptsTested: { 'Leaderstats.server.lua': true },
+  });
+});
+
+test('sanitizeConfig defaults builder state when missing or malformed', () => {
+  const missing = sanitizeConfig({ projectFolder: null, widgets: [] });
+  assert.deepEqual(missing.builder, { ideaText: '', chips: [], plan: null, scriptsTested: {} });
+
+  const malformed = sanitizeConfig({
+    projectFolder: null,
+    widgets: [],
+    builder: { ideaText: 123, chips: 'not-an-array', plan: [1, 2, 3], scriptsTested: 'nope' },
+  });
+  assert.deepEqual(malformed.builder, { ideaText: '', chips: [], plan: null, scriptsTested: {} });
 });
 
 test('terminal control payload guards reject malformed renderer messages', () => {
