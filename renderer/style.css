@@ -416,18 +416,6 @@ html, body {
   cursor: pointer;
 }
 
-#planContent h2 {
-  margin: 0 0 8px;
-  font-size: 20px;
-}
-
-#planContent h3 {
-  margin: 20px 0 8px;
-  font-size: 14px;
-  color: #8b949e;
-  font-weight: 600;
-}
-
 #planContent ul,
 #planContent ol {
   margin: 0;
