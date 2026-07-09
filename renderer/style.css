@@ -416,6 +416,43 @@ html, body {
   cursor: pointer;
 }
 
+#planContent h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+#planContent h3 {
+  margin: 20px 0 8px;
+  font-size: 14px;
+  color: #8b949e;
+  font-weight: 600;
+}
+
+#planContent ul,
+#planContent ol {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
+.plan-tree {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 12px;
+  font-family: 'Cascadia Code', Consolas, monospace;
+  font-size: 13px;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.safety-notes {
+  background: rgba(210, 153, 34, 0.1);
+  border: 1px solid #d29922;
+  border-radius: 8px;
+  padding: 12px 12px 12px 32px;
+}
+
 .primary-action:hover {
   background: #2ea043;
 }

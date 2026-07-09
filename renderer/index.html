@@ -39,7 +39,11 @@
         <button id="btnGeneratePlan" class="primary-action">Generate Plan</button>
       </div>
     </div>
-    <div id="tabPlan" class="tab-panel"></div>
+    <div id="tabPlan" class="tab-panel">
+      <div class="builder-panel" id="planContent">
+        <p class="widget-empty">No plan yet — describe your idea and click "Generate Plan" on the Idea tab.</p>
+      </div>
+    </div>
     <div id="tabScripts" class="tab-panel"></div>
     <div id="tabDebug" class="tab-panel"></div>
     <div id="tabAdvanced" class="tab-panel">
@@ -75,6 +79,7 @@
   <script src="scripts-data.js"></script>
   <script src="tabs.js"></script>
   <script src="idea-view.js"></script>
+  <script src="plan-view.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>
