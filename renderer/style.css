@@ -444,3 +444,77 @@ html, body {
 .primary-action:hover {
   background: #2ea043;
 }
+
+.script-card {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.script-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.script-filename {
+  font-family: 'Cascadia Code', Consolas, monospace;
+  font-weight: 600;
+  color: #58a6ff;
+}
+
+.script-tested {
+  font-size: 12px;
+  color: #8b949e;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.script-path {
+  font-size: 12px;
+  color: #8b949e;
+  margin: 4px 0 8px;
+}
+
+.script-purpose {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.script-code {
+  background: #05070a;
+  border: 1px solid #21262d;
+  border-radius: 6px;
+  padding: 12px;
+  font-family: 'Cascadia Code', Consolas, monospace;
+  font-size: 12px;
+  overflow-x: auto;
+  white-space: pre;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.script-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.script-actions button {
+  background: #161b22;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.script-actions button:hover {
+  border-color: #58a6ff;
+}
